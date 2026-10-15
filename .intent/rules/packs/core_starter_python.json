@@ -1,0 +1,44 @@
+{
+    "$schema": "META/rule_document.schema.json",
+    "kind": "rule_document",
+    "metadata": {
+        "id": "rules.packs.core_starter_python",
+        "title": "Starter Python Hygiene (pack)",
+        "version": "1.1.0",
+        "authority": "policy",
+        "phase": "runtime",
+        "status": "active"
+    },
+    "rules": [
+        {
+            "id": "starter.no_bare_except",
+            "statement": "Code MUST NOT swallow exceptions with a bare 'except:' or 'except Exception: pass'. Name the exception you expect and handle it; a silent except hides the bug you most need to see.\n",
+            "enforcement": "blocking",
+            "authority": "policy",
+            "phase": "runtime",
+            "rationale": "A bare except that silently passes is unambiguous bad practice in any Python codebase \u2014 it hides failures that would otherwise surface immediately. The fix is always the same: name the exception. This is the starter's blocking rule because it is trivially fixable and has zero false positives.\n"
+        },
+        {
+            "id": "starter.docstrings",
+            "statement": "Public functions and classes MUST have a docstring that states their intent. A docstring is the contract a future reader \u2014 human or tool \u2014 relies on.\n",
+            "enforcement": "reporting",
+            "authority": "policy",
+            "phase": "runtime"
+        },
+        {
+            "id": "starter.no_print",
+            "statement": "Importable library code MUST NOT use print(). Use a logger so output is structured, leveled, and routable. print() in shipped code is almost always a debugging leftover.\n",
+            "enforcement": "reporting",
+            "authority": "policy",
+            "phase": "runtime"
+        },
+        {
+            "id": "starter.no_secrets",
+            "statement": "Source code MUST NOT contain hardcoded credentials \u2014 passwords, API keys, or secret tokens assigned directly to a string literal. Hardcoded secrets leak into version control. Move them to environment variables or a secrets manager.\n",
+            "enforcement": "reporting",
+            "authority": "policy",
+            "phase": "runtime",
+            "rationale": "Hardcoded credentials are the most common cause of secret leaks in version-controlled repositories. Reporting (not blocking) on first adoption gives operators time to confirm exclusions before promoting to blocking.\n"
+        }
+    ]
+}

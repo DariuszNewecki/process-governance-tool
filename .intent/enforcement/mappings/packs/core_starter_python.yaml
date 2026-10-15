@@ -1,0 +1,55 @@
+mappings:
+  starter.no_bare_except:
+    engine: ast_gate
+    params:
+      check_type: no_swallowed_exceptions
+    scope:
+      applies_to:
+      - '**/*.py'
+      excludes:
+      - '**/venv/**'
+      - '**/.venv/**'
+      - '**/build/**'
+      - '**/dist/**'
+      - '**/.eggs/**'
+  starter.docstrings:
+    engine: ast_gate
+    params:
+      check_type: docstrings_present
+    scope:
+      applies_to:
+      - '**/*.py'
+      excludes:
+      - '**/__init__.py'
+      - tests/**/*.py
+      - test/**/*.py
+      - '**/venv/**'
+      - '**/.venv/**'
+  starter.no_print:
+    engine: ast_gate
+    params:
+      check_type: no_print_statements
+    scope:
+      applies_to:
+      - '**/*.py'
+      excludes:
+      - tests/**/*.py
+      - test/**/*.py
+      - scripts/**/*.py
+      - '**/venv/**'
+      - '**/.venv/**'
+  starter.no_secrets:
+    engine: regex_gate
+    params:
+      forbidden_patterns:
+      - (?i)\b(password|passwd|secret_key|api_key|access_token|auth_token)\s*=\s*['"][^'"\s]{8,}['"]
+    scope:
+      applies_to:
+      - '**/*.py'
+      excludes:
+      - tests/**/*.py
+      - test/**/*.py
+      - '**/test_*.py'
+      - '**/*_test.py'
+      - '**/venv/**'
+      - '**/.venv/**'

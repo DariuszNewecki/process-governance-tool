@@ -1,0 +1,20 @@
+# CORE audits every pull request against this repository's .intent/.
+# Its verdict is authoritative.
+name: CORE audit
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DariuszNewecki/CORE@v2.14.5
+        with:
+          severity: block

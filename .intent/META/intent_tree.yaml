@@ -1,0 +1,20 @@
+$schema: META/intent_tree.schema.json
+notes: 'Starter intent tree for external repositories adopting the CORE Constitutional
+  Audit. The directories listed are the minimal set the stateless (offline) audit
+  loads. Source of truth: examples/starter-intent in the CORE repository. Do not hand-edit
+  a downstream copy.
+
+  '
+optional_directories:
+- enforcement
+- taxonomies
+packs:
+- id: core/starter-python
+  source: local
+required_directories:
+- META
+- constitution
+- rules
+validated_directories:
+- META
+- rules

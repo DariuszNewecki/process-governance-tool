@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+# Word templates and rendered documents are inputs and outputs, never sources:
+# an organisation's template stays with the organisation.
+*.dotx
+*.dotm
+*.docx
+!tests/fixtures/**/*.docx

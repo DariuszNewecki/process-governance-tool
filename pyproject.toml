@@ -1,0 +1,31 @@
+[project]
+name = "process-governance-tool"
+version = "0.1.0"
+description = "Governed process documentation: Markdown in, a Word document in your organisation's template out."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["python-docx>=1.1", "pyyaml>=6", "pypandoc_binary>=1.13"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6", "core-runtime==2.14.5"]
+
+[project.scripts]
+procgov = "procgov.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"procgov.render" = ["*.lua"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

@@ -1,0 +1,26 @@
+# Fernhill Garden Supplies is fictional: the sample organisation for tests and examples.
+organisation:
+  name: Fernhill Garden Supplies
+  header_label: Fernhill Process Library
+  classification: Internal
+  copyright: Copyright Fernhill Garden Supplies, All rights reserved
+font: Arial
+palette:
+  primary: "3B7A3B"
+  dark: "1E3D1E"
+  light: "D5E8D4"
+library: library
+document_types:
+  process:
+    label: Process
+    required_sections: [Purpose, Scope, Roles, Steps]
+    indicators: [owner, handover, decision, approve, accountable]
+  work_instruction:
+    label: Work Instruction
+    required_sections: [Purpose, Steps]
+    indicators: [click, enter, open, select, press, scan]
+classification:
+  margin: 2
+spelling:
+  organization: organisation
+  color: colour
