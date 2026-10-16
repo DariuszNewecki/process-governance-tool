@@ -51,17 +51,18 @@ def _front_matter(doc, config: Config) -> list[Finding]:
                 "R1",
             )
         ]
-    out = [
-        Finding(
-            "front_matter.missing",
-            doc.rel,
-            f"front-matter has no '{name}'",
-            "id, type, status, owner and title identify a governed document",
-            "R1",
+    missing = [name for name in REQUIRED_FIELDS if not doc.meta.get(name)]
+    out = []
+    if missing:
+        out.append(
+            Finding(
+                "front_matter.missing",
+                doc.rel,
+                "front-matter has no " + ", ".join(missing),
+                "id, type, status, owner and title identify a governed document",
+                "R1",
+            )
         )
-        for name in REQUIRED_FIELDS
-        if not doc.meta.get(name)
-    ]
     if doc.type and config.doc_type(doc.type) is None:
         known = ", ".join(sorted(config.document_types))
         out.append(

@@ -70,3 +70,11 @@ def test_proposals_alone_do_not_fail_the_check(config):
     findings = check_library(load_library(config.library), config)
     assert [f.rule for f in findings] == ["spelling.house"]
     assert not has_errors(findings)
+
+
+def test_missing_front_matter_fields_are_one_finding_per_document(config):
+    (config.library / "notes.md").write_text("---\ntitle: Notes\n---\n\nText.\n")
+    findings = [
+        f for f in check_library(load_library(config.library), config) if f.document == "notes.md"
+    ]
+    assert [f.message for f in findings] == ["front-matter has no id, type, status, owner"]
