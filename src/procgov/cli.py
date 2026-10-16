@@ -1,6 +1,6 @@
-"""``procgov``: check, classify, register, render, package, site, promote.
+"""``procgov``: check, classify, register, render, package, site, promote, adopt.
 
-Only ``promote`` changes source, and only with ``--write`` (G3). Every other
+Only ``promote`` and ``adopt`` change source, and only with ``--write`` (G3). Every other
 command reads the library and writes outputs outside it.
 """
 
@@ -11,6 +11,7 @@ import json
 import sys
 from pathlib import Path
 
+from procgov.adopt import apply_adoption, plan_adoption
 from procgov.checks import check_library, has_errors
 from procgov.classify import as_findings, classify
 from procgov.config import ConfigError, load_config
@@ -52,6 +53,8 @@ def _parser() -> argparse.ArgumentParser:
     pr.add_argument("draft", help="the draft's path inside the library")
     pr.add_argument("--approved-by", required=True)
     pr.add_argument("--write", action="store_true", help="apply the promotion")
+    ad = sub.add_parser("adopt", help="add missing front-matter (dry run unless --write)")
+    ad.add_argument("--write", action="store_true", help="apply the additions")
     return p
 
 
@@ -132,6 +135,22 @@ def _run(args, config, library, build: Path) -> int:
             apply_promotion(changes, args.approved_by)
         else:
             _out("dry run: nothing changed; add --write to promote")
+        return 0
+    if args.command == "adopt":
+        adoptions = plan_adoption(library, config)
+        verb = "added" if args.write else "would add"
+        for a in adoptions:
+            if a.refused:
+                _out(f"skipped {a.rel}: {a.refused}")
+                continue
+            added = ", ".join(f"{k}: {v}" for k, v in a.fields.items()) or "nothing"
+            _out(f"{verb} to {a.rel}: {added}")
+            for note in a.notes:
+                _out(f"  {note}")
+        if args.write:
+            apply_adoption(adoptions)
+        else:
+            _out("dry run: nothing changed; add --write to adopt")
         return 0
     return 2
 

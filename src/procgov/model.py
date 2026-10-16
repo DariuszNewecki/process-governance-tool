@@ -16,7 +16,8 @@ import yaml
 
 STATUSES = ("DRAFT", "DOCUMENT", "ARCHIVE")
 REQUIRED_FIELDS = ("id", "type", "status", "owner", "title")
-_FRONT = re.compile(r"\A---\n(.*?)\n---\n?", re.DOTALL)
+# The front-matter block at the top of a document; group 1 is its YAML.
+FRONT_MATTER = re.compile(r"\A---\n(.*?)\n---\n?", re.DOTALL)
 _HEADING = re.compile(r"^(#{1,6})\s+(.+?)\s*#*\s*$", re.MULTILINE)
 
 
@@ -88,7 +89,7 @@ def parse_document(path: Path, root: Path) -> Document:
     meta: dict[str, Any] = {}
     error = None
     body = text
-    match = _FRONT.match(text)
+    match = FRONT_MATTER.match(text)
     if match is None:
         error = "no front-matter block (--- ... ---) at the top"
     else:
