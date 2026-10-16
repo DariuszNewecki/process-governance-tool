@@ -9,7 +9,7 @@ from __future__ import annotations
 import hashlib
 import re
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 import yaml
@@ -67,6 +67,7 @@ class Library:
 
     root: Path
     documents: tuple[Document, ...]
+    excluded: tuple[str, ...] = ()
 
     def by_id(self) -> dict[str, list[Document]]:
         """Documents grouped by id (a DRAFT and a DOCUMENT may share one)."""
@@ -110,8 +111,21 @@ def parse_document(path: Path, root: Path) -> Document:
     )
 
 
-def load_library(root: Path) -> Library:
-    """Parse every ``*.md`` under ``root`` (sorted, so output order is stable)."""
+def load_library(root: Path, exclude: tuple[str, ...] = ()) -> Library:
+    """Parse every ``*.md`` under ``root`` (sorted, so output order is stable).
+
+    ``exclude`` holds glob patterns, relative to ``root``, for files that are
+    not governed documents (working records, drafts kept beside them). They
+    are listed in ``Library.excluded``, never skipped silently.
+    """
     root = Path(root).resolve()
     paths = sorted(p for p in root.rglob("*.md") if p.is_file())
-    return Library(root=root, documents=tuple(parse_document(p, root) for p in paths))
+    kept, excluded = [], []
+    for path in paths:
+        rel = PurePosixPath(path.relative_to(root).as_posix())
+        (excluded if any(rel.match(g) for g in exclude) else kept).append(path)
+    return Library(
+        root=root,
+        documents=tuple(parse_document(p, root) for p in kept),
+        excluded=tuple(p.relative_to(root).as_posix() for p in excluded),
+    )

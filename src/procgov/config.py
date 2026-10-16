@@ -55,6 +55,7 @@ class Config:
     document_types: dict[str, DocumentType]
     classification_margin: int
     spelling: dict[str, str] = field(default_factory=dict)
+    library_exclude: tuple[str, ...] = ()
 
     def doc_type(self, key: str) -> DocumentType | None:
         """The document type declared under ``key``, or None."""
@@ -113,4 +114,5 @@ def load_config(path: Path) -> Config:
         document_types=types,
         classification_margin=int(classification.get("margin", 2)),
         spelling={str(k).lower(): str(v) for k, v in (raw.get("spelling") or {}).items()},
+        library_exclude=tuple(str(g) for g in raw.get("library_exclude") or ()),
     )
