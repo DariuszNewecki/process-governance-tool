@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import replace
 
 from procgov.adopt import apply_adoption, plan_adoption
+from procgov.checks import check_library
 from procgov.classify import classify
 from procgov.cli import main
 from procgov.model import load_library
@@ -98,3 +99,45 @@ def test_without_indicators_adopt_gives_the_same_reason_as_classify(config):
     for a in plan_adoption(library, config):
         assert f"type: {notes[a.rel]}; set one by hand" in a.notes
         assert "no indicators configured, so no proposal is possible" in notes[a.rel]
+
+
+def _versions_of_one_plan(config):
+    for version in ("0.2", "0.10", "0.9"):
+        (config.library / f"Quarry_Plan_v{version}.md").write_text(f"# Quarry plan {version}\n")
+
+
+def test_versions_of_one_document_share_an_id_and_the_newest_is_current(config):
+    _versions_of_one_plan(config)
+    plan = {a.rel: a.fields for a in plan_adoption(load_library(config.library), config)}
+    assert {rel: f["id"] for rel, f in plan.items()} == {
+        "Quarry_Plan_v0.2.md": "quarry-plan",
+        "Quarry_Plan_v0.9.md": "quarry-plan",
+        "Quarry_Plan_v0.10.md": "quarry-plan",
+    }
+    assert plan["Quarry_Plan_v0.10.md"]["status"] == "DRAFT"
+    for older in ("Quarry_Plan_v0.2.md", "Quarry_Plan_v0.9.md"):
+        assert plan[older]["status"] == "ARCHIVE"
+        assert plan[older]["superseded_by"] == "Quarry_Plan_v0.10.md"
+
+
+def test_adopted_versions_pass_the_lifecycle_check(config):
+    _versions_of_one_plan(config)
+    adoptions = plan_adoption(load_library(config.library), config)
+    apply_adoption(adoptions)
+    findings = check_library(load_library(config.library), config)
+    lifecycle = [f for f in findings if f.rule.startswith("lifecycle.")]
+    assert lifecycle == []
+
+
+def test_a_single_versioned_file_drops_the_version_from_its_id(config):
+    (config.library / "Kiln Notes v3.md").write_text("# Kiln\n")
+    [a] = plan_adoption(load_library(config.library), config)
+    assert (a.fields["id"], a.fields["status"]) == ("kiln-notes", "DRAFT")
+
+
+def test_a_shared_id_already_in_use_is_not_proposed(config):
+    (config.library / "pr-001_v1.md").write_text("# One\n")
+    (config.library / "pr-001_v2.md").write_text("# Two\n")
+    plan = plan_adoption(load_library(config.library), config)
+    assert all("id" not in a.fields for a in plan)
+    assert all(a.notes[0].startswith("id: 'PR-001' from the file name is taken") for a in plan)
