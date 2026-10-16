@@ -26,6 +26,7 @@ class Classification:
     proposed: str
     scores: dict[str, int]
     missing_sections: tuple[str, ...]
+    note: str = ""
 
     @property
     def differs(self) -> bool:
@@ -52,8 +53,30 @@ def classify(library: Library, config: Config) -> list[Classification]:
         missing = tuple(
             s for s in (dtype.required_sections if dtype else ()) if s.lower() not in present
         )
-        out.append(Classification(doc.rel, doc.type, proposed, scores, missing))
+        out.append(
+            Classification(
+                doc.rel, doc.type, proposed, scores, missing, _note(doc, proposed, config)
+            )
+        )
     return out
+
+
+def _note(doc, proposed: str, config: Config) -> str:
+    """Why a row has nothing to show; empty when the row speaks for itself.
+
+    A check with nothing to inspect does not pass by default, so an empty
+    row always carries its reason.
+    """
+    reasons = []
+    if not doc.type:
+        reasons.append("no type declared")
+    elif config.doc_type(doc.type) is None:
+        reasons.append(f"type '{doc.type}' is not configured, so no sections are checked")
+    if not any(dtype.indicators for dtype in config.document_types.values()):
+        reasons.append("no indicators configured, so no proposal is possible")
+    elif not proposed:
+        reasons.append("no type's indicators lead clearly enough for a proposal")
+    return "; ".join(reasons)
 
 
 def as_findings(results: list[Classification], config: Config) -> list[Finding]:
