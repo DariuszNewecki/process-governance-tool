@@ -44,7 +44,7 @@ def _id_from_name(stem: str) -> str:
 
 def plan_adoption(library: Library, config: Config) -> list[Adoption]:
     """One adoption per document that is missing front-matter, in library order."""
-    proposed_types = {r.document: r.proposed for r in classify(library, config)}
+    classified = {r.document: r for r in classify(library, config)}
     taken = {d.id for d in library.documents if d.id}
     out = []
     for doc in library.documents:
@@ -68,10 +68,12 @@ def plan_adoption(library: Library, config: Config) -> list[Adoption]:
                 fields["id"] = new_id
                 taken.add(new_id)
         if not doc.type:
-            if proposed_types.get(doc.rel):
-                fields["type"] = proposed_types[doc.rel]
+            result = classified[doc.rel]
+            if result.proposed:
+                fields["type"] = result.proposed
             else:
-                notes.append("type: the classification test gives no clear type; set one by hand")
+                # The same reason `classify` prints for this row.
+                notes.append(f"type: {result.note}; set one by hand")
         if not doc.status:
             fields["status"] = "DRAFT"
         if not doc.title:

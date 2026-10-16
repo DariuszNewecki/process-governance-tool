@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 from procgov.adopt import apply_adoption, plan_adoption
+from procgov.classify import classify
 from procgov.cli import main
 from procgov.model import load_library
 
@@ -26,9 +29,10 @@ def test_the_plan_proposes_id_status_type_and_title_but_never_an_owner(config):
     assert "owner: left for the Process Owner" in till.notes
     returns = plan["PR-007 Returns.md"]
     assert returns.fields == {"id": "PR-007", "status": "DRAFT", "title": "Returns"}
-    assert any(
-        n.startswith("type: the classification test gives no clear type") for n in returns.notes
-    )
+    assert (
+        "type: no type declared; no type's indicators lead clearly enough for a proposal;"
+        " set one by hand"
+    ) in returns.notes
 
 
 def test_adopt_is_a_dry_run_without_write(config, capsys):
@@ -83,3 +87,14 @@ def test_broken_front_matter_is_refused_and_not_rewritten(config):
     assert a.refused.startswith("fix the front-matter first")
     apply_adoption(adoptions)
     assert path.read_text() == before
+
+
+def test_without_indicators_adopt_gives_the_same_reason_as_classify(config):
+    plain = {key: replace(dtype, indicators=()) for key, dtype in config.document_types.items()}
+    config = replace(config, document_types=plain)
+    _existing(config)
+    library = load_library(config.library)
+    notes = {r.document: r.note for r in classify(library, config)}
+    for a in plan_adoption(library, config):
+        assert f"type: {notes[a.rel]}; set one by hand" in a.notes
+        assert "no indicators configured, so no proposal is possible" in notes[a.rel]
