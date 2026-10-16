@@ -87,11 +87,12 @@ def _run(args, config, library, build: Path) -> int:
         return 1 if has_errors(findings) else 0
     if args.command == "classify":
         results = classify(library, config)
-        _out("| Document | Declared | Proposed | Missing sections |")
-        _out("| --- | --- | --- | --- |")
+        _out("| Document | Declared | Proposed | Missing sections | Note |")
+        _out("| --- | --- | --- | --- | --- |")
         for r in results:
             _out(
-                f"| {r.document} | {r.declared} | {r.proposed} | {', '.join(r.missing_sections)} |"
+                f"| {r.document} | {r.declared} | {r.proposed} "
+                f"| {', '.join(r.missing_sections)} | {r.note} |"
             )
         for f in as_findings(results, config):
             _out(f"proposal {f.document}: {f.message} ({f.reason})")

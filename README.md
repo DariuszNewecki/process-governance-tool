@@ -36,7 +36,7 @@ owner: Head of Purchasing
 | Command | What it does |
 | --- | --- |
 | `procgov check` | Front-matter, required sections, house spelling, broken cross-references, lifecycle. Exit 1 on errors; spelling is a proposal. |
-| `procgov classify` | Proposed document type and missing sections per document (a report). |
+| `procgov classify` | Proposed document type and missing sections per document, and why a row is empty (a report). |
 | `procgov render [ID]` | Word output in `build/docx/`, laid out from your template or configured palette. |
 | `procgov register` | `register.md` and `register.csv`, one row per document. |
 | `procgov package` | Active documents rendered, register and `manifest.json` (source and output hashes, commit). |
