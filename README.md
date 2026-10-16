@@ -45,6 +45,17 @@ owner: Head of Purchasing
 
 Outputs never go into the library. The same source gives the same output.
 
+To keep working records (status updates, invitations, drafts) beside the
+governed documents without governing them, list them in `procgov.yaml`:
+
+```yaml
+library_exclude:
+  - 'records/*'
+  - '*_status_update_*'
+```
+
+`procgov check` names every excluded file.
+
 ## Governed by CORE
 
 This repository is audited by [CORE](https://github.com/DariuszNewecki/CORE)

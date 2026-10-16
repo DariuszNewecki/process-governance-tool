@@ -63,7 +63,7 @@ def main(argv: list[str] | None = None) -> int:
     except ConfigError as exc:
         sys.stderr.write(f"procgov: {exc}\n")
         return 2
-    library = load_library(config.library)
+    library = load_library(config.library, config.library_exclude)
     build = config.root / "build"
     try:
         return _run(args, config, library, build)
@@ -81,6 +81,8 @@ def _run(args, config, library, build: Path) -> int:
             for f in findings:
                 extra = f" -> {f.proposal}" if f.proposal else ""
                 _out(f"{f.severity:8} {f.document}: {f.message}{extra}  [{f.rule}; {f.standard}]")
+            if library.excluded:
+                _out(f"excluded by library_exclude: {', '.join(library.excluded)}")
             _out(f"{len(library.documents)} document(s), {len(findings)} finding(s)")
         return 1 if has_errors(findings) else 0
     if args.command == "classify":
