@@ -1,0 +1,13 @@
+# Enforced where the private library is: scripts/private_names.py reads the
+# forbidden names from it and checks a commit range or a text (an issue or PR
+# body) before it is published. CI has no private library, so the audit
+# records the rule; the check runs on the machine that does.
+mappings:
+  privacy.no_private_library_names:
+    engine: passive_gate
+    params:
+      attestation_class: "A"
+      enforced_by: "scripts/private_names.py"
+    scope:
+      applies_to:
+      - '**/*'

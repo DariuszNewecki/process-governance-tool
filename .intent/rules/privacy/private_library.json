@@ -1,0 +1,22 @@
+{
+  "$schema": "META/rule_document.schema.json",
+  "kind": "rule_document",
+  "metadata": {
+    "id": "rules.privacy.private_library",
+    "title": "The private library stays private",
+    "version": "1.0.0",
+    "authority": "policy",
+    "phase": "runtime",
+    "status": "active"
+  },
+  "rules": [
+    {
+      "id": "privacy.no_private_library_names",
+      "statement": "Public issues, pull requests, commit messages, code and test data MUST NOT contain a file name or a person's name from a private library the tool is used on. A finding from real use describes the document in plain words (for example 'the framework, version 0.3') and names the command and the date; test data uses the fictional Fernhill organisation.\n",
+      "enforcement": "blocking",
+      "authority": "policy",
+      "phase": "runtime",
+      "rationale": "This repository is public and the libraries it governs are not. The names a library holds (its files, its owners, the people in its records) identify an organisation and its staff. The check reads those names from the library on the machine that has it, so the list of forbidden names is never itself published. Governor decision 2026-10-16 (CORE#1054).\n"
+    }
+  ]
+}

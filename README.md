@@ -71,3 +71,15 @@ pytest -q
 ruff check src tests
 core-admin code audit --offline
 ```
+
+The libraries this tool governs are private; this repository is public. No
+file name or person's name from a private library goes into an issue, pull
+request, commit or test data (`.intent/rules/privacy/private_library.json`).
+On the machine that has the library, check a branch and any issue or PR text
+before publishing it:
+
+```bash
+export PROCGOV_PRIVATE_LIBRARY=/path/to/library
+export PROCGOV_PRIVATE_NAMES=/path/to/names.txt   # optional: people named inside documents
+python scripts/private_names.py --range origin/main..HEAD issue-body.md
+```
