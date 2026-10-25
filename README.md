@@ -72,7 +72,8 @@ ruff check src tests
 core-admin code audit --offline
 ```
 
-The libraries this tool governs are private; this repository is public. No
+The libraries this tool governs are private, and so is this repository
+(DEC-2026-031). Even so, no
 file name or person's name from a private library goes into an issue, pull
 request, commit or test data (`.intent/rules/privacy/private_library.json`).
 On the machine that has the library, check a branch and any issue or PR text
