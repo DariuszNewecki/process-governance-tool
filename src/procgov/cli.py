@@ -54,6 +54,7 @@ def _parser() -> argparse.ArgumentParser:
     pr.add_argument("--approved-by", required=True)
     pr.add_argument("--write", action="store_true", help="apply the promotion")
     ad = sub.add_parser("adopt", help="add missing front-matter (dry run unless --write)")
+    ad.add_argument("--owner", default="", help="owner for documents that name none")
     ad.add_argument("--write", action="store_true", help="apply the additions")
     return p
 
@@ -137,7 +138,7 @@ def _run(args, config, library, build: Path) -> int:
             _out("dry run: nothing changed; add --write to promote")
         return 0
     if args.command == "adopt":
-        adoptions = plan_adoption(library, config)
+        adoptions = plan_adoption(library, config, args.owner)
         verb = "added" if args.write else "would add"
         for a in adoptions:
             if a.refused:

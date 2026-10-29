@@ -4,7 +4,8 @@ Dry run by default (G3): without ``write`` it only says what it would add.
 For each document it proposes the missing front-matter: an id from the file
 name (without a version suffix), status DRAFT, the type from the
 classification test when it is clear, and a title from the first heading.
-The owner is never guessed; it is left for the Process Owner. Files whose
+The owner is never guessed: it is left for the Process Owner, unless the
+person adopting names one with ``owner`` (``--owner``). Files whose
 names differ only by a version suffix are versions of one document: they
 share one id, the newest is the DRAFT and the older ones are ARCHIVE,
 superseded by it. Existing front-matter lines are kept as written and the
@@ -78,7 +79,7 @@ def _versions(library: Library) -> dict[str, tuple[str, str]]:
     return out
 
 
-def plan_adoption(library: Library, config: Config) -> list[Adoption]:
+def plan_adoption(library: Library, config: Config, owner: str = "") -> list[Adoption]:
     """One adoption per document that is missing front-matter, in library order."""
     classified = {r.document: r for r in classify(library, config)}
     versions = _versions(library)
@@ -125,7 +126,10 @@ def plan_adoption(library: Library, config: Config) -> list[Adoption]:
             headings = [text for level, text in doc.headings() if level == 1]
             fields["title"] = headings[0] if headings else doc.path.stem
         if not doc.owner:
-            notes.append("owner: left for the Process Owner")
+            if owner:
+                fields["owner"] = owner
+            else:
+                notes.append("owner: left for the Process Owner; or adopt with --owner NAME")
         if fields or notes:
             out.append(Adoption(doc.path, doc.rel, fields, tuple(notes)))
     return out

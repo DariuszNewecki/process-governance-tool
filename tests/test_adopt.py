@@ -27,7 +27,7 @@ def test_the_plan_proposes_id_status_type_and_title_but_never_an_owner(config):
     assert set(plan) == {"Till Opening.md", "PR-007 Returns.md"}
     till = plan["Till Opening.md"]
     assert till.fields == {"id": "till-opening", "type": "work_instruction", "status": "DRAFT"}
-    assert "owner: left for the Process Owner" in till.notes
+    assert "owner: left for the Process Owner; or adopt with --owner NAME" in till.notes
     returns = plan["PR-007 Returns.md"]
     assert returns.fields == {"id": "PR-007", "status": "DRAFT", "title": "Returns"}
     assert (
@@ -141,3 +141,26 @@ def test_a_shared_id_already_in_use_is_not_proposed(config):
     plan = plan_adoption(load_library(config.library), config)
     assert all("id" not in a.fields for a in plan)
     assert all(a.notes[0].startswith("id: 'PR-001' from the file name is taken") for a in plan)
+
+
+def test_an_owner_named_with_owner_is_added_where_none_is_written(config, capsys):
+    _existing(config)
+    (config.library / "Kept.md").write_text("---\nowner: Head of Sales\n---\n\n# Kept\n")
+    assert (
+        main(
+            [
+                "--config",
+                str(config.root / "procgov.yaml"),
+                "adopt",
+                "--owner",
+                "Head of Retail",
+                "--write",
+            ]
+        )
+        == 0
+    )
+    library = load_library(config.library)
+    owners = {d.rel: d.owner for d in library.documents}
+    assert owners["Till Opening.md"] == "Head of Retail"
+    assert owners["PR-007 Returns.md"] == "Head of Retail"
+    assert owners["Kept.md"] == "Head of Sales"
