@@ -1,6 +1,7 @@
-"""``procgov``: check, classify, register, render, package, site, promote, adopt.
+"""``procgov``: init, check, classify, register, render, package, site, promote, adopt.
 
-Only ``promote`` and ``adopt`` change source, and only with ``--write`` (G3). Every other
+``init`` writes a starter configuration and never overwrites one. Only
+``promote`` and ``adopt`` change source, and only with ``--write`` (G3). Every other
 command reads the library and writes outputs outside it.
 """
 
@@ -14,7 +15,7 @@ from pathlib import Path
 from procgov.adopt import apply_adoption, plan_adoption
 from procgov.checks import check_library, has_errors
 from procgov.classify import as_findings, classify
-from procgov.config import ConfigError, load_config
+from procgov.config import ConfigError, load_config, write_starter
 from procgov.model import load_library
 from procgov.package import build_package
 from procgov.promote import PromotionRefused, apply_promotion, plan_promotion
@@ -36,6 +37,9 @@ def _parser() -> argparse.ArgumentParser:
         help="organisation configuration (default: ./procgov.yaml)",
     )
     sub = p.add_subparsers(dest="command", required=True)
+    i = sub.add_parser("init", help="write a starter procgov.yaml")
+    i.add_argument("--organisation", required=True, help="the organisation's name")
+    i.add_argument("--library", default="library", help="the library folder (default: library)")
     c = sub.add_parser("check", help="check every document; exit 1 on errors")
     c.add_argument("--json", action="store_true", help="findings as JSON")
     sub.add_parser("classify", help="classification proposal and section gaps per document")
@@ -61,6 +65,13 @@ def _parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     """Run one command; return its exit code."""
     args = _parser().parse_args(argv)
+    if args.command == "init":
+        try:
+            _out(f"wrote {write_starter(args.config, args.organisation, args.library)}")
+        except FileExistsError as exc:
+            sys.stderr.write(f"procgov: {exc}\n")
+            return 1
+        return 0
     try:
         config = load_config(args.config)
     except ConfigError as exc:

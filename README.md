@@ -35,6 +35,7 @@ owner: Head of Purchasing
 
 | Command | What it does |
 | --- | --- |
+| `procgov init --organisation NAME` | Writes a starter `procgov.yaml` (two document types, library folder `library`); never replaces one. |
 | `procgov check` | Front-matter, required sections, house spelling, broken cross-references, lifecycle. Exit 1 on errors; spelling is a proposal. |
 | `procgov classify` | Proposed document type and missing sections per document, and why a row is empty (a report). |
 | `procgov render [ID]` | Word output in `build/docx/`, laid out from your template or configured palette. |
