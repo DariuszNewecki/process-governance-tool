@@ -116,3 +116,32 @@ def load_config(path: Path) -> Config:
         spelling={str(k).lower(): str(v) for k, v in (raw.get("spelling") or {}).items()},
         library_exclude=tuple(str(g) for g in raw.get("library_exclude") or ()),
     )
+
+
+_STARTER = """\
+# Starter configuration written by `procgov init`. Every value is yours to change.
+organisation:
+  name: {name}
+  header_label: Process documentation
+  classification: Internal
+library: {library}
+document_types:
+  process:
+    label: Process
+    required_sections: [Purpose, Scope, Roles, Steps]
+    indicators: [owner, approve, decision, handover, accountable]
+  work_instruction:
+    label: Work Instruction
+    required_sections: [Purpose, Steps]
+    indicators: [click, enter, open, select, press]
+"""
+
+
+def write_starter(path: Path, organisation: str, library: str) -> Path:
+    """Write a starter ``procgov.yaml`` at ``path``; an existing file is never replaced."""
+    path = Path(path)
+    if path.exists():
+        raise FileExistsError(f"{path} exists; init never replaces a configuration")
+    text = _STARTER.format(name=yaml.safe_dump(organisation).splitlines()[0], library=library)
+    path.write_text(text, encoding="utf-8")
+    return path
