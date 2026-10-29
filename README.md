@@ -42,7 +42,7 @@ owner: Head of Purchasing
 | `procgov package` | Active documents rendered, register and `manifest.json` (source and output hashes, commit). |
 | `procgov site` | Static site (documents, register, findings, a reader per document) and its zip for offline readers. |
 | `procgov promote FILE --approved-by NAME` | Shows what promoting a DRAFT changes; add `--write` to apply. |
-| `procgov adopt` | Shows the front-matter an existing library is missing (id from the file name, status DRAFT; versions of one file share an id, older ones ARCHIVE; type when the classification is clear, title from the first heading); add `--write` to apply. The owner is left for the Process Owner; existing front-matter and the body are kept. |
+| `procgov adopt` | Shows the front-matter an existing library is missing (id from the file name, status DRAFT; versions of one file share an id, older ones ARCHIVE; type when the classification is clear, title from the first heading); add `--write` to apply. The owner is left for the Process Owner unless you name one with `--owner NAME`; existing front-matter and the body are kept. |
 
 Only `promote` and `adopt` change source, and only with `--write`.
 
