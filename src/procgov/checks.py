@@ -89,7 +89,8 @@ def _front_matter(doc, config: Config) -> list[Finding]:
 
 def _sections(doc, config: Config) -> list[Finding]:
     dtype = config.doc_type(doc.type)
-    if dtype is None:
+    # An ARCHIVE version is a record of what was in force; it is not rewritten.
+    if dtype is None or doc.status == "ARCHIVE":
         return []
     present = {text.lower() for _, text in doc.headings()}
     return [

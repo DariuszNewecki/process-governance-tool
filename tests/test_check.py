@@ -78,3 +78,15 @@ def test_missing_front_matter_fields_are_one_finding_per_document(config):
         f for f in check_library(load_library(config.library), config) if f.document == "notes.md"
     ]
     assert [f.message for f in findings] == ["front-matter has no id, type, status, owner"]
+
+
+def test_an_archived_version_is_not_held_to_the_required_sections(config):
+    body = "\n## Purpose\n\nPrices.\n"
+    for name, status in (("PR-003-old.md", "ARCHIVE"), ("PR-003-new.md", "DRAFT")):
+        (config.library / name).write_text(
+            f"---\nid: PR-003\ntitle: Pricing\ntype: process\nstatus: {status}\n"
+            f"owner: Head of Sales\n---\n{body}"
+        )
+    findings = check_library(load_library(config.library), config)
+    sections = {f.document for f in findings if f.rule == "sections.missing"}
+    assert sections == {"PR-003-new.md"}
